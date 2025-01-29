@@ -6,7 +6,7 @@ export function getDocstringIndentation(
     defaultIndentation: string,
 ): string {
     const lines = document.split("\n");
-    const definitionPattern = /\b(((async\s+)?\s*def)|\s*class)\b/g;
+    const definitionPattern = /\b(function)\b/g;
 
     let currentLineNum = linePosition;
 

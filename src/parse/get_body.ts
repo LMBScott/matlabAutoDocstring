@@ -28,7 +28,7 @@ export function getBody(document: string, linePosition: number): string[] {
 
 function getBodyBaseIndentation(lines: string[], linePosition: number): number {
     let currentLineNum = linePosition;
-    const functionDefRegex = /\s*def \w+/;
+    const functionDefRegex = /\s*function \w+/;
 
     while (currentLineNum < lines.length) {
         const line = lines[currentLineNum];

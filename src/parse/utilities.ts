@@ -15,7 +15,7 @@ export function getIndentation(line: string): string {
  * @param lines The lines to preprocess.
  */
 export function preprocessLines(lines: string[]): string[] {
-    return lines.map((line) => line.trim()).filter((line) => !line.startsWith("#"));
+    return lines.map((line) => line.trim()).filter((line) => !line.startsWith("%"));
 }
 
 export function indentationOf(line: string): number {

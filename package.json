@@ -73,19 +73,9 @@
             "properties": {
                 "autoDocstring.docstringFormat": {
                     "type": "string",
-                    "default": "google",
+                    "default": "default",
                     "enum": [
-                        "docblockr",
-                        "doxygen",
-                        "doxygen-notypes",
-                        "google",
-                        "google-notypes",
-                        "numpy",
-                        "numpy-notypes",
-                        "one-line-sphinx",
-                        "pep257",
-                        "sphinx",
-                        "sphinx-notypes"
+                        "default"
                     ],
                     "description": "Which docstring format to use."
                 },
@@ -121,10 +111,9 @@
                 },
                 "autoDocstring.quoteStyle": {
                     "type": "string",
-                    "default": "\"\"\"",
+                    "default": "% ",
                     "enum": [
-                        "\"\"\"",
-                        "'''"
+                        "% "
                     ],
                     "description": "Style of quote used with generate docstring command"
                 },

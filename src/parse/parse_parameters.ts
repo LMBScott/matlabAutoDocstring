@@ -1,171 +1,142 @@
-import { guessType } from ".";
+import { guessType, TokenSet } from ".";
 import {
     Argument,
-    Decorator,
     DocstringParts,
     Exception,
-    KeywordArgument,
     Returns,
-    Yields,
 } from "../docstring_parts";
 
 export function parseParameters(
-    parameterTokens: string[],
+    parameterTokens: TokenSet,
     body: string[],
     functionName: string,
 ): DocstringParts {
     return {
         name: functionName,
-        decorators: parseDecorators(parameterTokens),
-        args: parseArguments(parameterTokens),
-        kwargs: parseKeywordArguments(parameterTokens),
-        returns: parseReturn(parameterTokens, body),
-        yields: parseYields(parameterTokens, body),
-        exceptions: parseExceptions(body),
+        args: parseArguments(body, parameterTokens.parameters),
+        returns: parseReturns(body, parameterTokens.returns),
+        hasExceptions: parseExceptions(body),
     };
 }
 
-function parseDecorators(parameters: string[]): Decorator[] {
-    const decorators: Decorator[] = [];
-    const pattern = /^@(\w+)/;
-
-    for (const param of parameters) {
-        const match = param.trim().match(pattern);
-
-        if (match == null) {
-            continue;
-        }
-
-        decorators.push({
-            name: match[1],
-        });
-    }
-
-    return decorators;
-}
-
-function parseArguments(parameters: string[]): Argument[] {
-    const args: Argument[] = [];
-    const excludedArgs = ["self", "cls"];
-    const pattern = /^(\w+)/;
-
-    for (const param of parameters) {
-        const match = param.trim().match(pattern);
-
-        if (match == null || param.includes("=") || inArray(param, excludedArgs)) {
-            continue;
-        }
-
-        args.push({
-            var: match[1],
-            type: guessType(param),
-        });
-    }
+function parseArguments(body: string[], parameters: string[]): Argument[] {
+    var args = parseArgumentsOrReturns<Argument>(body, parameters, false);
 
     return args;
 }
 
-function parseKeywordArguments(parameters: string[]): KeywordArgument[] {
-    const kwargs: KeywordArgument[] = [];
-    const pattern = /^(\w+)(?:\s*:[^=]+)?\s*=\s*(.+)/;
+function parseArgumentsOrReturns<T extends Argument | Returns>(body: string[], parameters: string[], parseReturns: boolean): T[] {
+    const args: Record<string, T> = {};
+    const signature_pattern = /^(\w+)/;
 
     for (const param of parameters) {
-        const match = param.trim().match(pattern);
+        const match = param.trim().match(signature_pattern);
 
         if (match == null) {
             continue;
         }
 
-        kwargs.push({
+        args[match[1]] = {
             var: match[1],
-            default: match[2],
-            type: guessType(param),
-        });
+            size: undefined,
+            type: undefined,
+            conditions: undefined
+        } as T;
+    }
+    
+    var validationParameterPattern = /(?:\([ \t]*Input[ \t]*\)\s*)?/;
+    
+    // If parsing returns, search for the Output parameter to the argument block
+    if (parseReturns)
+    {
+        validationParameterPattern = /(?:\([ \t]*Output[ \t]*\)\s*){1}/;
     }
 
-    return kwargs;
-}
+    const validation_pattern = RegExp(/^(?<!%.*)arguments\s*/.source + validationParameterPattern.source + /\n((?:[ \t]*\w+[ \t]*(?:\((?:[ \t]*[\d+:][ \t]*,?)+\))?[ \t]*(?:\w+[ \t]*)?(?:\{(?:[ \t]*\w*[ \t]*,?)*\})?\n)*)[ \t]*end/.source, "m");
+    const body_joined = body.join('\n');
 
-function parseReturn(parameters: string[], body: string[]): Returns {
-    const returnType = parseReturnFromDefinition(parameters);
+    // Search for an input validation block in the function body
+    const validation_match = body_joined.match(validation_pattern);
 
-    if (returnType == null || isIterator(returnType.type)) {
-        return parseFromBody(body, /return /);
+    // No input validation block found, return argument data without type and size specifications
+    if (validation_match === null) {
+        console.log("Validation lines not found")
+        return Object.values(args);
     }
 
-    return returnType;
-}
+    // Argument validation lines are found in the 1st capture group
+    const validation_lines = validation_match[1];
 
-function parseYields(parameters: string[], body: string[]): Yields {
-    const returnType = parseReturnFromDefinition(parameters);
+    const argument_pattern = /[ \t]*(\w+)[ \t]*(\((?:[ \t]*(?:\d+|:)[ \t]*,?)+\))?[ \t]*(\w+)?[ \t]*(\{(?:[ \t]*\w*[ \t]*,?)*\})?/;
+    console.log("Validation lines found")
 
-    if (returnType != null && isIterator(returnType.type)) {
-        return returnType as Yields;
-    }
+    // Iterate over each argument's validation line and parse the size and type specified for it
+    for (const line of validation_lines.split('\n')) {
+        const match = line.match(argument_pattern);
 
-    // To account for functions that yield but don't have a yield signature
-    const yieldType = returnType ? returnType.type : undefined;
-    const yieldInBody = parseFromBody(body, /yield /);
-
-    if (yieldInBody != null && yieldType != undefined) {
-        yieldInBody.type = `Iterator[${yieldType}]`;
-    }
-
-    return yieldInBody;
-}
-
-function parseReturnFromDefinition(parameters: string[]): Returns | null {
-    const pattern = /^->\s*(["']?)(['"\w\[\], |\.]*)\1/;
-
-    for (const param of parameters) {
-        const match = param.trim().match(pattern);
-
-        if (match == null) {
+        if (match === null) {
             continue;
         }
 
-        // Skip "-> None" annotations
-        return match[2] === "None" ? null : { type: match[2] };
+        // Check whether the argument was already found in the function signature
+        if (match[1] in args) {
+            // Add size if specified
+            if (match[2] !== undefined) {
+                const size = formatValidationSize(match[2]);
+                args[match[1]].size = size;
+            }
+
+            // Add type if specified
+            if (match[3] !== undefined) {
+                args[match[1]].type = match[3];
+            }
+
+            // Add conditions if any are specified
+            if (match[4] !== undefined) {
+                args[match[1]].conditions = formatValidationConditions(match[4]);
+            }
+        }
     }
 
-    return null;
+    return Object.values(args);
 }
 
-function parseExceptions(body: string[]): Exception[] {
-    const exceptions: Exception[] = [];
-    const pattern = /(?<!#.*)raise\s+([\w.]+)/;
+function formatValidationSize(validationSize: string): string {
+    // Remove leading and trailing parentheses, then split size values into individual strings
+    const sizeStr = validationSize.replace(/[\(\) \t]/g, '').replace(',', ' x ');
+
+    return sizeStr;
+}
+
+function formatValidationConditions(validationConditions: string): string {
+    // Remove leading and trailing curly braces, then comma-separate conditions with a single space between each
+    const sizeStr = validationConditions.replace(/[\{\} \t]/g, '').replace(',', ', ');
+
+    return sizeStr;
+}
+
+function parseReturns(body: string[], parameters: string[]): Returns[] {
+    const returns = parseArgumentsOrReturns<Returns>(body, parameters, true);
+
+    return returns;
+}
+
+function parseExceptions(body: string[]): boolean {
+    var hasExceptions = false;
+    
+    const pattern = /(?<!%.*)error\(.*\)/;
 
     for (const line of body) {
         const match = line.match(pattern);
 
-        if (match == null) {
-            continue;
+        if (match != null) {
+            hasExceptions = true;
         }
-
-        exceptions.push({ type: match[1] });
     }
 
-    return exceptions;
+    return hasExceptions;
 }
 
 export function inArray<type>(item: type, array: type[]) {
     return array.some((x) => item === x);
-}
-
-function parseFromBody(body: string[], pattern: RegExp): Returns | Yields {
-    for (const line of body) {
-        const match = line.match(pattern);
-
-        if (match == null) {
-            continue;
-        }
-
-        return { type: undefined };
-    }
-
-    return undefined;
-}
-
-function isIterator(type: string): boolean {
-    return type.startsWith("Generator") || type.startsWith("Iterator");
 }

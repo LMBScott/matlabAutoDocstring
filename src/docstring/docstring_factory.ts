@@ -18,7 +18,7 @@ export class DocstringFactory {
 
     constructor(
         template: string,
-        quoteStyle = '"""',
+        quoteStyle = '% ',
         startOnNewLine = false,
         includeDescription = true,
         includeName = false,
@@ -93,7 +93,14 @@ export class DocstringFactory {
             snippet = "\n" + snippet;
         }
 
-        return this.quoteStyle + snippet + this.quoteStyle;
+        var output: string = "";
+
+        // Add a quote at the start of each line
+        for (const line of snippet.split('\n')) {
+            output += this.quoteStyle + line + '\n';
+        }
+
+        return output;
     }
 
     private indentDocstring(snippet: string, indentation: string): string {

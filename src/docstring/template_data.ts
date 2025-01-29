@@ -2,22 +2,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
     Argument,
-    Decorator,
     DocstringParts,
     Exception,
-    KeywordArgument,
     Returns,
-    Yields,
 } from "../docstring_parts";
 
 export class TemplateData {
     public name: string;
-    public decorators: Decorator[];
     public args: Argument[];
-    public kwargs: KeywordArgument[];
-    public exceptions: Exception[];
-    public returns: Returns;
-    public yields: Yields;
+    public hasExceptions: boolean;
+    public returns: Returns[];
 
     private includeName: boolean;
     private includeExtendedSummary: boolean;
@@ -29,12 +23,9 @@ export class TemplateData {
         includeExtendedSummary: boolean,
     ) {
         this.name = docstringParts.name;
-        this.decorators = docstringParts.decorators;
         this.args = docstringParts.args;
-        this.kwargs = docstringParts.kwargs;
-        this.exceptions = docstringParts.exceptions;
+        this.hasExceptions = docstringParts.hasExceptions;
         this.returns = docstringParts.returns;
-        this.yields = docstringParts.yields;
 
         this.includeName = includeName;
         this.includeExtendedSummary = includeExtendedSummary;
@@ -83,24 +74,16 @@ export class TemplateData {
         return this.args.length > 0;
     }
 
-    public kwargsExist(): boolean {
-        return this.kwargs.length > 0;
-    }
-
     public parametersExist(): boolean {
-        return this.args.length > 0 || this.kwargs.length > 0;
+        return this.args.length > 0;
     }
 
     public exceptionsExist(): boolean {
-        return this.exceptions.length > 0;
+        return this.hasExceptions;
     }
 
     public returnsExist(): boolean {
-        return this.returns !== undefined;
-    }
-
-    public yieldsExist(): boolean {
-        return this.yields != undefined;
+        return this.returns.length > 0;
     }
 
     private removeTypes(): void {
@@ -108,16 +91,10 @@ export class TemplateData {
             arg.type = undefined;
         }
 
-        for (const kwarg of this.kwargs) {
-            kwarg.type = undefined;
-        }
-
-        if (this.yieldsExist()) {
-            this.yields.type = undefined;
-        }
-
         if (this.returnsExist()) {
-            this.returns.type = undefined;
+            for (const returnVal of this.returns) {
+                returnVal.type = undefined;
+            }
         }
     }
 
@@ -128,20 +105,13 @@ export class TemplateData {
             }
         }
 
-        for (const kwarg of this.kwargs) {
-            if (kwarg.type === undefined) {
-                kwarg.type = placeholder;
+        if (this.returnsExist()) {
+            for (const returnVal of this.returns) {
+                if (returnVal.type === undefined)
+                {
+                    returnVal.type = placeholder;
+                }
             }
-        }
-
-        const returns = this.returns;
-        if (returns !== undefined && returns.type === undefined) {
-            returns.type = placeholder;
-        }
-
-        const yields = this.yields;
-        if (yields != undefined && yields.type == undefined) {
-            yields.type = placeholder;
         }
     }
 }

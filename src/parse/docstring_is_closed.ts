@@ -29,7 +29,7 @@ function quotesCloseExistingDocstring(
     let numberOfTripleQuotes = 0;
 
     for (const line of linesBeforePosition.reverse()) {
-        if (line.includes("def ") || line.includes("class ")) {
+        if (line.includes("function ")) {
             break;
         }
 
@@ -60,8 +60,7 @@ function quotesOpenExistingDocstring(
 
         if (
             (!blankLine(line) && indentationOf(line) < originalIndentation) ||
-            line.includes("def ") ||
-            line.includes("class ")
+            line.includes("function ")
         ) {
             return false;
         }

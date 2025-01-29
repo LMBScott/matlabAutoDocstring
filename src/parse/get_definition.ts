@@ -10,7 +10,7 @@ export function getDefinition(document: string, linePosition: number): string {
         return "";
     }
 
-    const pattern = /\b(((async\s+)?\s*def)|\s*class)\b/g;
+    const pattern = /\b(function)\b/g;
 
     // Get starting index of last def match in the preceding text
     let index: number;
