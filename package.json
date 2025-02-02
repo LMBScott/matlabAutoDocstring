@@ -99,6 +99,11 @@
                     "default": false,
                     "description": "Include function names at the start of docstrings"
                 },
+                "autoDocstring.insertAtDocumentStart": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Insert docstring at the start of the document if it only contains one function definition."
+                },
                 "autoDocstring.startOnNewLine": {
                     "type": "boolean",
                     "default": false,

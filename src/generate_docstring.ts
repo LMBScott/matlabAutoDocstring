@@ -2,7 +2,7 @@ import * as path from "path";
 import * as vs from "vscode";
 import { DocstringFactory } from "./docstring/docstring_factory";
 import { getCustomTemplate, getTemplate } from "./docstring/get_template";
-import { getDocstringIndentation, getDefaultIndentation, parse } from "./parse";
+import { getDocstringIndentation, getFunctionCount, getDefaultIndentation, parse } from "./parse";
 import { extensionID } from "./constants";
 import { logDebug, logInfo } from "./logger";
 import { docstringPartsToString } from "./docstring_parts";
@@ -21,16 +21,29 @@ export class AutoDocstring {
             );
         }
 
-        const position = this.editor.selection.active;
         const document = this.editor.document.getText();
+
+        const position = this.editor.selection.active;
         logInfo(`Generating Docstring at line: ${position.line}`);
+        
+        const config = this.getConfig();
 
-        const docstringSnippet = this.generateDocstringSnippet(document, position);
+        // Insert docstring at document start if appropriate
+        var insertPosition = position.with(undefined, 0);
+        var shouldIndentDocstring = true;
+        if (config.get("insertAtDocumentStart") && getFunctionCount(document) === 1)
+        {
+            insertPosition = this.editor.document.positionAt(0);
+
+            // Don't indent docstrings at the start of a document
+            shouldIndentDocstring = false;
+        }
+        
+        const docstringSnippet = this.generateDocstringSnippet(document, position, shouldIndentDocstring);
         logInfo(`Docstring generated:\n${docstringSnippet.value}`);
-
-        const insertPosition = position.with(undefined, 0);
+        
         logInfo(`Inserting at position: ${insertPosition.line} ${insertPosition.character}`);
-
+        
         const success = this.editor.insertSnippet(docstringSnippet, insertPosition);
 
         success.then(
@@ -43,7 +56,7 @@ export class AutoDocstring {
         return success;
     }
 
-    private generateDocstringSnippet(document: string, position: vs.Position): vs.SnippetString {
+    private generateDocstringSnippet(document: string, position: vs.Position, indent: boolean): vs.SnippetString {
         const config = this.getConfig();
 
         const docstringFactory = new DocstringFactory(
@@ -63,7 +76,13 @@ export class AutoDocstring {
             this.editor.options.tabSize as number,
         );
         logDebug(`Default indentation: "${defaultIndentation}"`);
-        const indentation = getDocstringIndentation(document, position.line, defaultIndentation);
+        var indentation = "";
+        
+        if (indent)
+        {
+            indentation = getDocstringIndentation(document, position.line, defaultIndentation);
+        }
+
         logDebug(`Indentation: "${indentation}"`);
         const docstring = docstringFactory.generateDocstring(docstringParts, indentation);
 
