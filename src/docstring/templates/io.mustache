@@ -1,0 +1,34 @@
+{functionName} {Small Description}
+{Long Description}
+
+ Author: 	FirstAuthor, first.author@mail.com
+		    SecondAuthor, second.author@mail.com
+ Date Created: DD-MM-YYYY
+ Last Modified: DD-MM-YYYY
+
+ Syntax: [output1, output2] = functionName(input1, input2)
+{{#parametersExist}}
+
+ Inputs:
+{{#args}}
+    {{var}} ({{size}} {{typePlaceholder}} {{conditions}}): {{descriptionPlaceholder}}
+{{/args}}
+{{/parametersExist}}
+{{#returnsExist}}
+{{#exceptionsExist}}
+
+ Errors:
+{{#exceptions}}
+    {{type}}: {{descriptionPlaceholder}}
+{{/exceptions}}
+{{/exceptionsExist}}
+
+ Outputs:
+{{#returns}}
+    {{var}} ({{size}} {{typePlaceholder}} {{conditions}}): {{descriptionPlaceholder}}
+{{/returns}}
+{{/returnsExist}}
+
+ Dependencies: dep1, dep2
+ See also: relFun1, relFun2
+ Notes: Notes

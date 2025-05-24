@@ -1,5 +1,5 @@
 import * as vs from "vscode";
-import { AutoDocstring } from "./generate_docstring";
+import { MatlabAutoDocstring } from "./generate_docstring";
 import { docstringIsClosed, validDocstringPrefix } from "./parse";
 import { extensionRoot, generateDocstringCommand, extensionID } from "./constants";
 import { getStackTrace } from "./telemetry";
@@ -8,13 +8,15 @@ import { logInfo, logError } from "./logger";
 export function activate(context: vs.ExtensionContext): void {
     extensionRoot.path = context.extensionPath;
 
+    logInfo("Activating matlabAutoDocstring...");
+
     context.subscriptions.push(
         vs.commands.registerCommand(generateDocstringCommand, () => {
             const editor = vs.window.activeTextEditor;
-            const autoDocstring = new AutoDocstring(editor);
+            const matlabAutoDocstring = new MatlabAutoDocstring(editor);
 
             try {
-                return autoDocstring.generateDocstring();
+                return matlabAutoDocstring.generateDocstring();
             } catch (error) {
                 const errorString = JSON.stringify(error);
                 let stackTrace = "";
@@ -26,7 +28,7 @@ export function activate(context: vs.ExtensionContext): void {
         }),
     );
 
-    ["python", "starlark"].map((language) => {
+    ["matlab"].map((language) => {
         context.subscriptions.push(
             vs.languages.registerCompletionItemProvider(
                 language,
@@ -44,7 +46,7 @@ export function activate(context: vs.ExtensionContext): void {
         );
     });
 
-    logInfo("autoDocstring was activated");
+    logInfo("matlabAutoDocstring was activated");
 }
 
 /**

@@ -9,8 +9,8 @@ chai.config.truncateThreshold = 0;
 const expect = chai.expect;
 
 /** Extension identifier. */
-const identifier = "njpwerner.autodocstring";
-const settingsIdentifier = "autoDocstring";
+const identifier = "LMBScott.matlabAutodocstring";
+const settingsIdentifier = "matlabAutoDocstring";
 
 describe("Basic Integration Tests", function () {
     this.timeout(30000);
@@ -41,7 +41,7 @@ describe("Basic Integration Tests", function () {
             ]);
             await extension.activate();
 
-            document = await vsc.workspace.openTextDocument({ language: "python" });
+            document = await vsc.workspace.openTextDocument({ language: "matlab" });
             editor = await vsc.window.showTextDocument(document);
         });
 
@@ -108,9 +108,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_1_output.py",
+                    "./matlab_test_files/file_1_output.py",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_1.py"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_1.py"),
                 position: new vsc.Position(2, 0),
             });
         });
@@ -119,9 +119,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_2_output.py",
+                    "./matlab_test_files/file_2_output.py",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_2.py"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_2.py"),
                 position: new vsc.Position(8, 0),
             });
         });
@@ -130,9 +130,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_3_output.py",
+                    "./matlab_test_files/file_3_output.py",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_3.py"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_3.py"),
                 position: new vsc.Position(2, 0),
             });
         });
@@ -141,9 +141,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_4_output.py",
+                    "./matlab_test_files/file_4_output.py",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_4.py"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_4.py"),
                 position: new vsc.Position(6, 0),
             });
         });
@@ -152,9 +152,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_5_output.py",
+                    "./matlab_test_files/file_5_output.py",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_5.py"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_5.py"),
                 position: new vsc.Position(8, 0),
             });
         });
@@ -163,9 +163,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_6_output.py",
+                    "./matlab_test_files/file_6_output.py",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_6.py"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_6.py"),
                 position: new vsc.Position(4, 0),
             });
         });
@@ -174,9 +174,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_7_output.py",
+                    "./matlab_test_files/file_7_output.py",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_7.py"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_7.py"),
                 position: new vsc.Position(8, 0),
             });
         });
@@ -185,9 +185,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_starlark_output.sky",
+                    "./matlab_test_files/file_starlark_output.sky",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_starlark.sky"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_starlark.sky"),
                 position: new vsc.Position(2, 0),
             });
         });
@@ -196,9 +196,9 @@ describe("Basic Integration Tests", function () {
             await testDocstringGeneration({
                 expectedOutputFilePath: path.resolve(
                     __dirname,
-                    "./python_test_files/file_bazel_output.bzl",
+                    "./matlab_test_files/file_bazel_output.bzl",
                 ),
-                inputFilePath: path.resolve(__dirname, "./python_test_files/file_bazel.bzl"),
+                inputFilePath: path.resolve(__dirname, "./matlab_test_files/file_bazel.bzl"),
                 position: new vsc.Position(2, 0),
             });
         });

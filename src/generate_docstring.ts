@@ -7,7 +7,7 @@ import { extensionID } from "./constants";
 import { logDebug, logInfo } from "./logger";
 import { docstringPartsToString } from "./docstring_parts";
 
-export class AutoDocstring {
+export class MatlabAutoDocstring {
     private editor: vs.TextEditor;
 
     constructor(editor: vs.TextEditor) {
@@ -41,7 +41,7 @@ export class AutoDocstring {
         
         const docstringSnippet = this.generateDocstringSnippet(document, position, shouldIndentDocstring);
         logInfo(`Docstring generated:\n${docstringSnippet.value}`);
-        
+
         logInfo(`Inserting at position: ${insertPosition.line} ${insertPosition.character}`);
         
         const success = this.editor.insertSnippet(docstringSnippet, insertPosition);
