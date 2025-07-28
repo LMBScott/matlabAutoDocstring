@@ -2,7 +2,7 @@
     "name": "matlabautodocstring",
     "displayName": "MATLAB autoDocstring - MATLAB Docstring Generator",
     "description": "Generates MATLAB docstrings automatically",
-    "version": "0.1",
+    "version": "0.1.0",
     "publisher": "Lachlan Scott",
     "license": "SEE LICENSE IN LICENSE",
     "icon": "images/icon.png",
