@@ -2,7 +2,7 @@ import { TokenSet } from "./token_set";
 
 export function tokenizeDefinition(functionDefinition: string): TokenSet {
     const definitionPattern =
-        /^\s*function\s+(?:\[\s*((?:\w+(?:\s*,\s*)*)+)\s*\]|([\w]+))?\s*=\s*(\w+)\s*\(([\s\S]*)\)\s*(?:%.*)?$/;
+        /^\s*function\s+(?:(?:\[\s*((?:\w+(?:\s*,\s*)*)+)\s*\]|([\w]+)){1}\s*=\s*)?(\w+)\s*\(([\s\S]*)\)\s*(?:%.*)?$/;
 
     const match = definitionPattern.exec(functionDefinition);
 
